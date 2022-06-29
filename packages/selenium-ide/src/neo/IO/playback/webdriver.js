@@ -437,6 +437,21 @@ export default class WebDriverExecutor {
   async doRun(target) {
     return Promise.resolve(PlaybackState.callTestCase(target))
   }
+
+  async doTakeScreenshot() {
+    console.log("In webDriver.js doTakeScreenshot");
+    // try {
+    //   const d = await new webdriver.Builder()
+    //   .forBrowser(webdriver.Browser.CHROME)
+    //   .build()
+    //   const res = await d.getTitle()
+    //   return Promise.resolve(res)
+    // } catch (error) {
+    //   return Promise.resolve({
+    //     result: error.message,
+    //   })
+    // }
+  }
 }
 
 async function waitForElement(locator, driver) {
