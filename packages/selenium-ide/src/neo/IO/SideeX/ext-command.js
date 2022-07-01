@@ -403,7 +403,16 @@ export default class ExtCommand {
   }
 
   async doEcho(string) {
+    console.log("In Echo " + this.getCurrentPlayingTabId());
     this.logger.log(`echo: ${string}`)
+    try {
+      const res = await browser.tabs.captureVisibleTab()
+      console.log("In Echo" + res);
+      
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
   doOpen(targetUrl) {
@@ -496,6 +505,14 @@ export default class ExtCommand {
   }
 
   async doMouseOver(locator, _, top) {
+    // let res = ''
+    // try {
+    //   res = await browser.tabs.captureVisibleTab(this.getCurrentPlayingWindowId())
+    //   console.log(res);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    // return Promise.resolve({result: res})
     const browserName = parsedUA.browser.name
     if (browserName === 'Chrome') {
       // handle scrolling through Selenium atoms
@@ -563,6 +580,16 @@ export default class ExtCommand {
       }
     } else {
       return this.sendMessage('type', locator, value, top)
+    }
+  }
+
+  async doTakeScreenShot() {
+    console.log("In ext-command.js doTakeScreenshot");
+    try {
+      const res = await browser.tabs.captureVisibleTab()
+      console.log(res);
+    } catch (error) {
+      console.log(error);
     }
   }
 
