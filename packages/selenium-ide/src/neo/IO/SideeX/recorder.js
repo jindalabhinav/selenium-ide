@@ -32,6 +32,29 @@ function hasRecorded() {
   return !!UiState.selectedTest.test.commands.length
 }
 
+function dataURLtoFile(dataurl, filename) {
+
+  var arr = dataurl.split(','),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], filename, { type: mime });
+}
+
+function downloadFile(zippedBlobData, filename) {
+  let downloadLink = document.createElement('a');
+  downloadLink.href = window.URL.createObjectURL(zippedBlobData);
+  downloadLink.setAttribute('download', filename);
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
 export default class BackgroundRecorder {
   constructor(windowSession) {
     // The only way to know if a tab is recordable is to assume it is, and verify it sends a record
@@ -104,7 +127,7 @@ export default class BackgroundRecorder {
       if (
         this.windowSession.currentUsedTabId[testCaseId] === activeInfo.tabId &&
         this.windowSession.currentUsedWindowId[testCaseId] ===
-          activeInfo.windowId
+        activeInfo.windowId
       )
         return
       // If no command has been recorded, ignore selectWindow command
@@ -125,8 +148,7 @@ export default class BackgroundRecorder {
         'selectWindow',
         [
           [
-            `handle=\${${
-              this.windowSession.openedTabIds[testCaseId][activeInfo.tabId]
+            `handle=\${${this.windowSession.openedTabIds[testCaseId][activeInfo.tabId]
             }}`,
           ],
         ],
@@ -204,8 +226,7 @@ export default class BackgroundRecorder {
             'selectWindow',
             [
               [
-                `handle=\${${
-                  this.windowSession.openedTabIds[testCaseId][tabs[0].id]
+                `handle=\${${this.windowSession.openedTabIds[testCaseId][tabs[0].id]
                 }}`,
               ],
             ],
@@ -231,8 +252,7 @@ export default class BackgroundRecorder {
           'selectWindow',
           [
             [
-              `handle=\${${
-                this.windowSession.openedTabIds[testCaseId][tabId]
+              `handle=\${${this.windowSession.openedTabIds[testCaseId][tabId]
               }}`,
             ],
           ],
@@ -243,10 +263,9 @@ export default class BackgroundRecorder {
           'selectWindow',
           [
             [
-              `handle=\${${
-                this.windowSession.openedTabIds[testCaseId][
-                  this.windowSession.currentUsedTabId[testCaseId]
-                ]
+              `handle=\${${this.windowSession.openedTabIds[testCaseId][
+              this.windowSession.currentUsedTabId[testCaseId]
+              ]
               }}`,
             ],
           ],
@@ -304,7 +323,7 @@ export default class BackgroundRecorder {
     }
   }
 
-  addCommandMessageHandler(message, sender, sendResponse) {
+  async addCommandMessageHandler(message, sender, sendResponse) {
     if (message.frameRemoved) {
       browser.tabs.sendMessage(sender.tab.id, {
         recalculateFrameLocation: true,
@@ -336,8 +355,7 @@ export default class BackgroundRecorder {
         'selectWindow',
         [
           [
-            `handle=\${${
-              this.windowSession.openedTabIds[testCaseId][sender.tab.id]
+            `handle=\${${this.windowSession.openedTabIds[testCaseId][sender.tab.id]
             }}`,
           ],
         ],
@@ -360,7 +378,7 @@ export default class BackgroundRecorder {
       while (
         oldFrameLevels.length != 0 &&
         oldFrameLevels[oldFrameLevels.length - 1] !=
-          newFrameLevels[oldFrameLevels.length - 1]
+        newFrameLevels[oldFrameLevels.length - 1]
       ) {
         record('selectFrame', [['relative=parent']], '')
         oldFrameLevels.pop()
@@ -390,6 +408,12 @@ export default class BackgroundRecorder {
       )
       return
     } else if (message.command.includes('store')) {
+      const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
+      const res = await browser.tabs.captureVisibleTab(tabIdRec)
+      debugger
+      console.log(res)
+      let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
+      downloadFile(zippedBlobData, 'filename.jpeg');
       // In Google Chrome, window.prompt() must be triggered in
       // an actived tabs of front window, so we let panel window been focused
       browser.windows
@@ -443,7 +467,7 @@ export default class BackgroundRecorder {
           frameId: 0,
         }
       )
-      .catch(() => {})
+      .catch(() => { })
   }
 
   isPrivilegedPage(url) {
