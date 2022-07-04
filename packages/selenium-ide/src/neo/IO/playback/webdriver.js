@@ -225,8 +225,7 @@ export default class WebDriverExecutor {
 
   async doExecuteAsyncScript(script, optionalVariable) {
     const result = await this.driver.executeAsyncScript(
-      `var callback = arguments[arguments.length - 1];${
-        script.script
+      `var callback = arguments[arguments.length - 1];${script.script
       }.then(callback).catch(callback);`,
       ...script.argv
     )
@@ -273,10 +272,10 @@ export default class WebDriverExecutor {
     if (actualText !== expectedText) {
       throw new Error(
         "Actual alert text '" +
-          actualText +
-          "' did not match '" +
-          expectedText +
-          "'"
+        actualText +
+        "' did not match '" +
+        expectedText +
+        "'"
       )
     }
   }
@@ -384,10 +383,10 @@ export default class WebDriverExecutor {
     if (selectedOptionLabel !== label) {
       throw new Error(
         "Actual value '" +
-          selectedOptionLabel +
-          "' did not match '" +
-          label +
-          "'"
+        selectedOptionLabel +
+        "' did not match '" +
+        label +
+        "'"
       )
     }
   }
@@ -438,20 +437,20 @@ export default class WebDriverExecutor {
     return Promise.resolve(PlaybackState.callTestCase(target))
   }
 
-  async doTakeScreenshot() {
-    console.log("In webDriver.js doTakeScreenshot");
-    // try {
-    //   const d = await new webdriver.Builder()
-    //   .forBrowser(webdriver.Browser.CHROME)
-    //   .build()
-    //   const res = await d.getTitle()
-    //   return Promise.resolve(res)
-    // } catch (error) {
-    //   return Promise.resolve({
-    //     result: error.message,
-    //   })
-    // }
-  }
+  // async doTakeScreenshot() {
+  //   console.log("In webDriver.js doTakeScreenshot");
+  //   // try {
+  //   //   const d = await new webdriver.Builder()
+  //   //   .forBrowser(webdriver.Browser.CHROME)
+  //   //   .build()
+  //   //   const res = await d.getTitle()
+  //   //   return Promise.resolve(res)
+  //   // } catch (error) {
+  //   //   return Promise.resolve({
+  //   //     result: error.message,
+  //   //   })
+  //   // }
+  // }
 }
 
 async function waitForElement(locator, driver) {

@@ -187,7 +187,7 @@ class PlaybackState {
   async beforePlaying(play) {
     try {
       UiState._project.addCurrentUrl()
-    } catch (e) {} // eslint-disable-line no-empty
+    } catch (e) { } // eslint-disable-line no-empty
     this.lastSelectedView = UiState.selectedView
     UiState.changeView('Executing', true)
     UiState.selectCommand(undefined)
@@ -282,7 +282,7 @@ class PlaybackState {
       suite = UiState.selectedTest.suite
     } else {
       suite = new Suite(undefined, 'All Tests')
-      UiState.filteredTests.forEach(function(test) {
+      UiState.filteredTests.forEach(function (test) {
         suite.addTestCase(test)
       })
     }
@@ -839,12 +839,12 @@ class PlaybackState {
     this.isSilent = false
   }
 
-  @action.bound
-  async captureScreenshot() {
-    this.logger.log("Taking Screenshot")
-    // const res = await this.browserDriver.doTakeScreenshot();
-    // console.log(res);
-  }
+  // @action.bound
+  // async captureScreenshot() {
+  //   this.logger.log("Taking Screenshot")
+  //   // const res = await this.browserDriver.doTakeScreenshot();
+  //   // console.log(res);
+  // }
 }
 
 export const PlaybackStates = {

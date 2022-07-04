@@ -476,14 +476,14 @@ export const Commands = [
       target: ArgTypes.locator,
     },
   ],
-  [
-    'screenGrab',
-    {
-      name: 'Screen Grab',
-      description: `Takes Screenshot And Page Source of current page and saves in a File`,
-      target: ArgTypes.message,
-    },
-  ],
+  // [
+  //   'screenGrab',
+  //   {
+  //     name: 'Screen Grab',
+  //     description: `Takes Screenshot And Page Source of current page and saves in a File`,
+  //     target: ArgTypes.message,
+  //   },
+  // ],
   [
     'mouseUp',
     {

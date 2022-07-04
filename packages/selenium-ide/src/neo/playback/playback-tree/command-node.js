@@ -150,13 +150,14 @@ export class CommandNode {
         this._interpolateValue(commandExecutor.variables),
         commandExecutor.isWindowMethodCommand(this.command.command)
       )
-    } 
-    else if (this.command.command === 'screenGrab') {
-      return commandExecutor.doTakeScreenShot(
-        this._interpolateTarget(commandExecutor.variables),
-        this._interpolateValue(commandExecutor.variables),
-      )
-    } else {
+    }
+    // else if (this.command.command === 'screenGrab') {
+    //   return commandExecutor.doTakeScreenShot(
+    //     this._interpolateTarget(commandExecutor.variables),
+    //     this._interpolateValue(commandExecutor.variables),
+    //   )
+    // }
+    else {
       return commandExecutor.sendMessage(
         this.command.command,
         this._interpolateTarget(commandExecutor.variables, targetOverride),
@@ -235,11 +236,11 @@ export class CommandNode {
     return (this.isWebDriverCommand(commandExecutor)
       ? commandExecutor.evaluateConditional(expression)
       : commandExecutor.sendMessage(
-          'evaluateConditional',
-          expression,
-          '',
-          false
-        )
+        'evaluateConditional',
+        expression,
+        '',
+        false
+      )
     ).then(result => {
       return this._evaluationResult(result)
     })

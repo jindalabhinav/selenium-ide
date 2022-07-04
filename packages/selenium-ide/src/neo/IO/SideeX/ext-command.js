@@ -221,7 +221,7 @@ export default class ExtCommand {
       if (
         !Object.keys(
           this.windowSession.openedTabIds[
-            this.getCurrentPlayingWindowSessionIdentifier()
+          this.getCurrentPlayingWindowSessionIdentifier()
           ]
         ).length
       ) {
@@ -315,8 +315,7 @@ export default class ExtCommand {
           clearInterval(interval)
           rej(
             new Error(
-              `Exceeded waiting time for new window to appear ${
-                this.windowTimeout
+              `Exceeded waiting time for new window to appear ${this.windowTimeout
               }ms`
             )
           )
@@ -385,10 +384,10 @@ export default class ExtCommand {
     this.windowSession.openedTabIds[
       this.getCurrentPlayingWindowSessionIdentifier()
     ][tabId] = this.waitForNewWindow
-      ? this.windowName
-      : 'win_ser_' +
+        ? this.windowName
+        : 'win_ser_' +
         this.windowSession.openedTabCount[
-          this.getCurrentPlayingWindowSessionIdentifier()
+        this.getCurrentPlayingWindowSessionIdentifier()
         ]
     this.windowSession.openedTabCount[
       this.getCurrentPlayingWindowSessionIdentifier()
@@ -408,7 +407,7 @@ export default class ExtCommand {
     try {
       const res = await browser.tabs.captureVisibleTab()
       console.log("In Echo" + res);
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -429,7 +428,7 @@ export default class ExtCommand {
   }
 
   doPause(milliseconds) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       setTimeout(resolve, milliseconds)
     })
   }
@@ -583,15 +582,15 @@ export default class ExtCommand {
     }
   }
 
-  async doTakeScreenShot() {
-    console.log("In ext-command.js doTakeScreenshot");
-    try {
-      const res = await browser.tabs.captureVisibleTab()
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async doTakeScreenShot() {
+  //   console.log("In ext-command.js doTakeScreenshot");
+  //   try {
+  //     const res = await browser.tabs.captureVisibleTab()
+  //     console.log(res);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   getFrameIds() {
     const frameLocation = this.getCurrentPlayingFrameLocation()
@@ -730,7 +729,7 @@ export default class ExtCommand {
           try {
             querySelector = convertLocator(loc[0])
             break
-          } catch (err) {} // eslint-disable-line
+          } catch (err) { } // eslint-disable-line
         }
       } catch (err) {
         throw e
@@ -764,9 +763,9 @@ export default class ExtCommand {
         return Promise.reject('Invalid Argument')
       ref = ref[properties[i]]
     }
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       let counter = 0
-      let interval = setInterval(function() {
+      let interval = setInterval(function () {
         if (ref[inspecting] === undefined || ref[inspecting] === false) {
           counter++
           if (counter > self.waitTimes) {
@@ -859,7 +858,7 @@ export default class ExtCommand {
     this.setCurrentPlayingTabId(tab.id)
     if (
       !this.windowSession.openedTabIds[
-        this.getCurrentPlayingWindowSessionIdentifier()
+      this.getCurrentPlayingWindowSessionIdentifier()
       ]
     ) {
       this.windowSession.openedTabIds[
@@ -936,15 +935,15 @@ export default class ExtCommand {
     return (
       reason == 'TypeError: response is undefined' ||
       reason ==
-        'Error: Could not establish connection. Receiving end does not exist.' ||
+      'Error: Could not establish connection. Receiving end does not exist.' ||
       // Below message is for Google Chrome
       reason.message ==
-        'Could not establish connection. Receiving end does not exist.' ||
+      'Could not establish connection. Receiving end does not exist.' ||
       // Google Chrome misspells "response"
       reason.message ==
-        'The message port closed before a reponse was received.' ||
+      'The message port closed before a reponse was received.' ||
       reason.message ==
-        'The message port closed before a response was received.' ||
+      'The message port closed before a response was received.' ||
       reason.message == 'result is undefined'
     ) // from command node eval
   }
