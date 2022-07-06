@@ -666,6 +666,8 @@ Recorder.addEventHandler(
       } else if (m.cmd.includes('Value')) {
         let tmpValue = event.target.value
         record(m.cmd, tmpTarget, tmpValue)
+      } else if (m.cmd.includes('screenGrab')) {
+        record(m.cmd, tmpTarget, '')
       }
       myPort.onMessage.removeListener(this)
     })

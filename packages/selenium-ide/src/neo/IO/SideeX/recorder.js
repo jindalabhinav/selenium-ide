@@ -410,8 +410,6 @@ export default class BackgroundRecorder {
     } else if (message.command.includes('store')) {
       const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
       const res = await browser.tabs.captureVisibleTab(tabIdRec)
-      debugger
-      console.log(res)
       let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
       downloadFile(zippedBlobData, 'filename.jpeg');
       // In Google Chrome, window.prompt() must be triggered in
@@ -437,7 +435,14 @@ export default class BackgroundRecorder {
           }, 100)
         })
       return
+    } else if (message.command.includes('screenGrab')) {
+      const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
+      const res = await browser.tabs.captureVisibleTab(tabIdRec)
+      let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
+      downloadFile(zippedBlobData, 'filename.jpeg');
+      return Promise.resolve();
     }
+
 
     //handle choose ok/cancel confirm
     if (message.insertBeforeLastCommand) {

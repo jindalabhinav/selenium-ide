@@ -1026,4 +1026,12 @@ export const Commands = [
       value: { isOptional: true, ...ArgTypes.loopLimit },
     },
   ],
+  [
+    'screenGrab',
+    {
+      name: 'Screen Grab',
+      description: `Takes Screenshot And Page Source of current page and saves in a File`,
+      target: ArgTypes.message,
+    },
+  ],
 ]
