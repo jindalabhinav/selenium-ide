@@ -298,6 +298,7 @@ module.exports = {
       { from: 'content/indicator.js', to: './' },
       { from: 'manifest.json', to: '../' },
       { from: 'icons', to: '../icons' },
+      {from: 'neo/IO/SideeX/getPagesSource.js', to: '../'}
     ]),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({

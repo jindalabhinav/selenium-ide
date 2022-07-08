@@ -440,7 +440,18 @@ export default class BackgroundRecorder {
       const res = await browser.tabs.captureVisibleTab(tabIdRec)
       let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
       downloadFile(zippedBlobData, 'filename.jpeg');
-      return Promise.resolve();
+      const tabID = this.windowSession.currentUsedTabId[testCaseId]
+      try {
+        await browser.tabs.executeScript(
+          tabID,
+          {
+            file: 'getPagesSource.js',
+          });
+        return Promise.resolve(); 
+      } catch (error) {
+        console.log(error);
+      }
+     
     }
 
 
