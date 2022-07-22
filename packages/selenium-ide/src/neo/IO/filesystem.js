@@ -97,15 +97,39 @@ function downloadProject(project) {
       //If in control mode, send the project in a message and skip downloading
       sendSaveProjectEvent(project)
     } else {
-      browser.downloads.download({
-        filename: projectProcessor.sanitizeProjectName(project.name) + '.side',
-        url: createBlob(
-          'application/side',
-          beautify(JSON.stringify(project), { indent_size: 2 })
-        ),
-        saveAs: true,
-        conflictAction: 'overwrite',
+      // logic to send to s3
+      console.log('Sending side to API')
+      var myHeaders = new Headers()
+      myHeaders.append('Content-Type', 'application/json')
+      var raw = JSON.stringify({
+        Side: beautify(JSON.stringify(project), { indent_size: 2 }),
+        TestCaseName: UiState.project.name,
       })
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      }
+
+      fetch('https://localhost:7129/api/SideFile', requestOptions)
+        .then(response => response.text()) // response.json should be there until API is finalized
+        .then(() => alert('Side File Uploaded To S3'))
+        .catch(error => {
+          alert('Side File Upload To S3 Failed')
+          console.log('error', error)
+        })
+
+      // browser.downloads.download({
+      //   filename: projectProcessor.sanitizeProjectName(project.name) + '.side',
+      //   url: createBlob(
+      //     'application/side',
+      //     beautify(JSON.stringify(project), { indent_size: 2 })
+      //   ),
+      //   saveAs: true,
+      //   conflictAction: 'overwrite',
+      // })
     }
   })
 }
