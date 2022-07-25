@@ -19,9 +19,11 @@ import browser from 'webextension-polyfill'
 import UiState from '../../stores/view/UiState'
 import record, { recordOpensWindow } from './record'
 import { Logger, Channels } from '../../stores/view/Logs'
+import uuidv4 from 'uuid/v4'
+
 
 const logger = new Logger(Channels.PLAYBACK)
-
+const DIR_NAME = "RecordingArtifacts";
 function getSelectedCase() {
   return {
     id: UiState.selectedTest.test.id,
@@ -408,10 +410,6 @@ export default class BackgroundRecorder {
       )
       return
     } else if (message.command.includes('store')) {
-      const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
-      const res = await browser.tabs.captureVisibleTab(tabIdRec)
-      let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
-      downloadFile(zippedBlobData, 'filename.jpeg');
       // In Google Chrome, window.prompt() must be triggered in
       // an actived tabs of front window, so we let panel window been focused
       browser.windows
@@ -435,26 +433,24 @@ export default class BackgroundRecorder {
           }, 100)
         })
       return
-    } else if (message.command.includes('screenGrab')) {
-      const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
-      const res = await browser.tabs.captureVisibleTab(tabIdRec)
-      let zippedBlobData = dataURLtoFile(res, 'filename.jpeg');
-      downloadFile(zippedBlobData, 'filename.jpeg');
+    } else if (message.command.includes('screenGrab')) {      
+      // capture Screenshot
+      let screenshotObjectURL = await this.captureScreenshot(testCaseId);
+      
+      // capture PageSource
       const tabID = this.windowSession.currentUsedTabId[testCaseId]
-      try {
-        await browser.tabs.executeScript(
-          tabID,
-          {
-            file: 'getPagesSource.js',
-          });
-        return Promise.resolve(); 
-      } catch (error) {
-        console.log(error);
-      }
-     
+      await this.extractPageSource(tabID)
+  
+      // revoke object URLS to save memory issues
+      browser.downloads.onChanged.addListener(delta => {
+        if (delta.state && delta.state.current === 'complete') {
+          // console.log(`Download ${delta.id} has completed.`)
+          window.URL.revokeObjectURL(screenshotObjectURL)
+        }
+      })
+
+
     }
-
-
     //handle choose ok/cancel confirm
     if (message.insertBeforeLastCommand) {
       record(message.command, message.target, message.value, true)
@@ -468,6 +464,60 @@ export default class BackgroundRecorder {
       record(message.command, message.target, message.value)
     }
   }
+
+  async captureScreenshot(testCaseId) {
+    const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
+    const res = await browser.tabs.captureVisibleTab(tabIdRec) // captureTab not available in chrome
+    let zippedBlobData = dataURLtoFile(res, 'Step.jpeg')
+    let objectURL = window.URL.createObjectURL(zippedBlobData)
+    await browser.downloads.download({
+      filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
+        UiState.project.name ||
+        uuidv4()}/Screenshots/Step.jpeg`,
+      url: objectURL,
+      // saveAs: true,
+      conflictAction: 'uniquify',
+    })
+    return objectURL
+  }
+
+  async extractPageSource(tabID) {
+   let isNewGrab = true
+
+   // add a listener
+   browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+     if (message.isPageSource && message.sourceCode && isNewGrab) {
+       isNewGrab = false
+       let zippedBlobData = new File([message.sourceCode], "Step.html", { type: "text/html"});
+       let pageSourceObjectURL = window.URL.createObjectURL(zippedBlobData)
+       browser.downloads
+         .download({
+           filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
+             UiState.project.name ||
+             uuidv4()}/PageSources/Step.html`,
+           url: pageSourceObjectURL,
+           // saveAs: true,
+           conflictAction: 'uniquify',
+         })
+         .then(() => {
+           sendResponse(true)
+         })
+         .catch(err => console.log(err))
+         .finally(() => {
+          //  window.URL.revokeObjectURL(pageSourceObjectURL)
+           console.log('URL revoked')
+         })
+       return
+     }
+   })
+
+   try {
+     await browser.tabs.executeScript(tabID, { file: 'getPagesSource.js' })
+     return Promise.resolve()
+   } catch (error) {
+     console.log(error)
+   }
+ }
 
   sendRecordNotification(tabId, command, target, value) {
     browser.tabs
