@@ -404,14 +404,6 @@ export default class ExtCommand {
   async doEcho(string) {
     console.log("In Echo " + this.getCurrentPlayingTabId());
     this.logger.log(`echo: ${string}`)
-    try {
-      const res = await browser.tabs.captureVisibleTab()
-      console.log("In Echo" + res);
-
-    } catch (error) {
-      console.log(error);
-    }
-
   }
 
   doOpen(targetUrl) {
@@ -582,15 +574,10 @@ export default class ExtCommand {
     }
   }
 
-  // async doTakeScreenShot() {
-  //   console.log("In ext-command.js doTakeScreenshot");
-  //   try {
-  //     const res = await browser.tabs.captureVisibleTab()
-  //     console.log(res);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  async doScreenGrab() {
+    console.log("In Screen Grab " + this.getCurrentPlayingTabId());
+    this.logger.log(`screenGrab: Capture Screenshot and Page Source via right click`)
+  }
 
   getFrameIds() {
     const frameLocation = this.getCurrentPlayingFrameLocation()

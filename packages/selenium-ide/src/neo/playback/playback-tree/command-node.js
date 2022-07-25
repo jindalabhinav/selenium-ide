@@ -150,14 +150,7 @@ export class CommandNode {
         this._interpolateValue(commandExecutor.variables),
         commandExecutor.isWindowMethodCommand(this.command.command)
       )
-    }
-    // else if (this.command.command === 'screenGrab') {
-    //   return commandExecutor.doTakeScreenShot(
-    //     this._interpolateTarget(commandExecutor.variables),
-    //     this._interpolateValue(commandExecutor.variables),
-    //   )
-    // }
-    else {
+    } else {
       return commandExecutor.sendMessage(
         this.command.command,
         this._interpolateTarget(commandExecutor.variables, targetOverride),

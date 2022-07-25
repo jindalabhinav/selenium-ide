@@ -451,8 +451,7 @@ export default class BackgroundRecorder {
           window.URL.revokeObjectURL(screenshotObjectURL)
         }
       })
-
-
+      return
     }
     //handle choose ok/cancel confirm
     if (message.insertBeforeLastCommand) {
@@ -507,7 +506,7 @@ export default class BackgroundRecorder {
          })
          .catch(err => console.log(err))
          .finally(() => {
-          //  window.URL.revokeObjectURL(pageSourceObjectURL)
+           window.URL.revokeObjectURL(pageSourceObjectURL)
            console.log('URL revoked')
          })
        return
