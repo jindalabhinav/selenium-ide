@@ -24,6 +24,7 @@ import uuidv4 from 'uuid/v4'
 
 const logger = new Logger(Channels.PLAYBACK)
 const DIR_NAME = "RecordingArtifacts";
+let currCount;
 function getSelectedCase() {
   return {
     id: UiState.selectedTest.test.id,
@@ -434,13 +435,15 @@ export default class BackgroundRecorder {
         })
       return
     } else if (message.command.includes('screenGrab')) {      
+      currCount++;
+
       // capture Screenshot
-      let screenshotObjectURL = await this.captureScreenshot(testCaseId);
-      
+      let screenshotObjectURL = await this.captureScreenshot(testCaseId)
+
       // capture PageSource
       const tabID = this.windowSession.currentUsedTabId[testCaseId]
       await this.extractPageSource(tabID)
-  
+
       // revoke object URLS to save memory issues
       browser.downloads.onChanged.addListener(delta => {
         if (delta.state && delta.state.current === 'complete') {
@@ -473,7 +476,7 @@ export default class BackgroundRecorder {
     await browser.downloads.download({
       filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
         UiState.project.name ||
-        uuidv4()}/Screenshots/Step.jpeg`,
+        uuidv4()}/Screenshots/Step${currCount}.jpeg`,
       url: objectURL,
       // saveAs: true,
       conflictAction: 'uniquify',
@@ -494,7 +497,7 @@ export default class BackgroundRecorder {
          .download({
            filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
              UiState.project.name ||
-             uuidv4()}/PageSources/Step.html`,
+             uuidv4()}/PageSources/Step${currCount}.html`,
            url: pageSourceObjectURL,
            // saveAs: true,
            conflictAction: 'uniquify',
@@ -582,6 +585,7 @@ export default class BackgroundRecorder {
       return
     }
     try {
+      currCount = 0;
       this.isAttaching = true
       browser.tabs.onActivated.addListener(this.tabsOnActivatedHandler)
       browser.windows.onFocusChanged.addListener(
@@ -607,6 +611,7 @@ export default class BackgroundRecorder {
     if (!this.attached) {
       return
     }
+    currCount = 0;
     await this.detachFromTab(this.lastAttachedTabId)
     this.lastAttachedTabId = undefined
     this.attached = false
