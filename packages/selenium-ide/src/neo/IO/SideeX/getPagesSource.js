@@ -4,7 +4,7 @@
 
 function getSourceCode() {
   let outerHTML = document.documentElement.outerHTML
-  outerHTML = '<!DOCTYPE HTML>' + '\n' + outerHTML
+  outerHTML = '<!DOCTYPE html>' + '\n' + outerHTML
   const sending = browser.runtime.sendMessage({
     sourceCode: outerHTML,
     isPageSource: true,

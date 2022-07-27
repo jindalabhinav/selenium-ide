@@ -437,12 +437,13 @@ export default class BackgroundRecorder {
     } else if (message.command.includes('screenGrab')) {      
       currCount++;
 
+      let folderName = this.getFolderName()
       // capture Screenshot
-      let screenshotObjectURL = await this.captureScreenshot(testCaseId)
+      let screenshotObjectURL = await this.captureScreenshot(testCaseId, folderName)
 
       // capture PageSource
       const tabID = this.windowSession.currentUsedTabId[testCaseId]
-      await this.extractPageSource(tabID)
+      await this.extractPageSource(tabID, folderName)
 
       // revoke object URLS to save memory issues
       browser.downloads.onChanged.addListener(delta => {
@@ -467,15 +468,13 @@ export default class BackgroundRecorder {
     }
   }
 
-  async captureScreenshot(testCaseId) {
+  async captureScreenshot(testCaseId, folderName) {
     const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
     const res = await browser.tabs.captureVisibleTab(tabIdRec) // captureTab not available in chrome
     let zippedBlobData = dataURLtoFile(res, 'Step.jpeg')
     let objectURL = window.URL.createObjectURL(zippedBlobData)
     await browser.downloads.download({
-      filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
-        UiState.project.name ||
-        uuidv4()}/Screenshots/Step${currCount}.jpeg`,
+      filename: `${folderName}/Screenshots/Step${currCount}.jpeg`,
       url: objectURL,
       // saveAs: true,
       conflictAction: 'uniquify',
@@ -483,7 +482,7 @@ export default class BackgroundRecorder {
     return objectURL
   }
 
-  async extractPageSource(tabID) {
+  async extractPageSource(tabID, folderName) {
    let isNewGrab = true
 
    // add a listener
@@ -494,9 +493,7 @@ export default class BackgroundRecorder {
        let pageSourceObjectURL = window.URL.createObjectURL(zippedBlobData)
        browser.downloads
          .download({
-           filename: `${DIR_NAME}/${UiState.selectedTest.test.name ||
-             UiState.project.name ||
-             uuidv4()}/PageSources/Step${currCount}.html`,
+           filename: `${folderName}/PageSources/Step${currCount}.html`,
            url: pageSourceObjectURL,
            // saveAs: true,
            conflictAction: 'uniquify',
@@ -683,5 +680,18 @@ export default class BackgroundRecorder {
         `${tabId}`
       )
     )
+  }
+
+  getFolderName() {
+    let folderName = '';
+    let testCaseName = `${UiState.selectedTest.test.name}`;
+    let projectName = `${UiState.project.name}`;
+    if (['untitled', '',null].includes(testCaseName.trim().toLowerCase())) {
+      folderName =  ['untitled', '',null].includes(projectName.trim().toLowerCase()) ? uuidv4() : projectName;
+    } else {
+      folderName = UiState.selectedTest.test.name;
+    }
+
+    return `${DIR_NAME}/${folderName}`
   }
 }
