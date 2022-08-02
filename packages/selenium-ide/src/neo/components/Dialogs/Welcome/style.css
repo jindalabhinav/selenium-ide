@@ -8,8 +8,9 @@
 }
 
 .welcome-dialog .welcome-dialog__subtitle {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: normal;
+  padding-top: 7px;
 }
 
 .welcome-dialog .welcome-dialog__options {

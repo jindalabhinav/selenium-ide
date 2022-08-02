@@ -25,6 +25,7 @@ import uuidv4 from 'uuid/v4'
 const logger = new Logger(Channels.PLAYBACK)
 const DIR_NAME = "RecordingArtifacts";
 let currCount;
+let folderName;
 function getSelectedCase() {
   return {
     id: UiState.selectedTest.test.id,
@@ -436,8 +437,9 @@ export default class BackgroundRecorder {
       return
     } else if (message.command.includes('screenGrab')) {      
       currCount++;
-
-      let folderName = this.getFolderName()
+      if (currCount == 1) {
+        folderName = this.getFolderName()
+      }
       // capture Screenshot
       let screenshotObjectURL = await this.captureScreenshot(testCaseId, folderName)
 

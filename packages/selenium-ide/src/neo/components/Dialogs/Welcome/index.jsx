@@ -92,7 +92,10 @@ class WelcomeDialogContents extends React.Component {
               Welcome to Selenium IDE - By FS Team
             </div>
             <div className="welcome-dialog__subtitle">
-              Version {project.version}
+              IDE Version {project.version}
+            </div>
+            <div className="welcome-dialog__subtitle">
+              FS Version {project.fsversion}
             </div>
           </div>
         )}
