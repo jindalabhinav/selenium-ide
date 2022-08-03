@@ -32,7 +32,6 @@ import { parse } from 'modifier-keys'
 import PlaybackState from '../../stores/view/PlaybackState'
 import ModalState from '../../stores/view/ModalState'
 import './style.css'
-import ScreenshotButton from '../ActionButtons/Screenshot'
 
 @observer
 export default class ToolBar extends React.Component {
@@ -130,9 +129,6 @@ export default class ToolBar extends React.Component {
           value={PlaybackState.delay}
           maxDelay={PlaybackState.maxDelay}
           onChange={PlaybackState.setDelay}
-        />
-        <ScreenshotButton
-        onClick={PlaybackState.captureScreenshot}
         />
         <div className="flexer" />
         <DisableBreakpoints

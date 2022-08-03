@@ -838,13 +838,6 @@ class PlaybackState {
     this.playFromHereCommandId = undefined
     this.isSilent = false
   }
-
-  // @action.bound
-  // async captureScreenshot() {
-  //   this.logger.log("Taking Screenshot")
-  //   // const res = await this.browserDriver.doTakeScreenshot();
-  //   // console.log(res);
-  // }
 }
 
 export const PlaybackStates = {
