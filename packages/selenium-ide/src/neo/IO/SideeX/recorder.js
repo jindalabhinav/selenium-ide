@@ -51,12 +51,13 @@ function dataURLtoFile(dataurl, filename) {
   return new File([u8arr], filename, { type: mime });
 }
 
-function downloadFile(zippedBlobData, filename) {
+function downloadFile(objectURL, filename) {
   let downloadLink = document.createElement('a');
-  downloadLink.href = window.URL.createObjectURL(zippedBlobData);
+  downloadLink.href = objectURL;
   downloadLink.setAttribute('download', filename);
   document.body.appendChild(downloadLink);
   downloadLink.click();
+  console.log("Clicked <a> tag with download attribute, download started");
 }
 
 export default class BackgroundRecorder {
@@ -436,21 +437,25 @@ export default class BackgroundRecorder {
         })
       return
     } else if (message.command.includes('screenGrab')) {      
+      console.log("I/O-Recorder.js: Screengrab Command Selected");
       currCount++;
       if (currCount == 1) {
         folderName = this.getFolderName()
+        console.log(`I/O-Recorder.js: Folder Name ${folderName}`);
       }
       // capture Screenshot
       let screenshotObjectURL = await this.captureScreenshot(testCaseId, folderName)
 
       // capture PageSource
       const tabID = this.windowSession.currentUsedTabId[testCaseId]
+      console.log(`I/O-Recorder.js: Starting Page source extraction Tab-Id : ${tabID}`); 
+
       await this.extractPageSource(tabID, folderName)
 
       // revoke object URLS to save memory issues
       browser.downloads.onChanged.addListener(delta => {
         if (delta.state && delta.state.current === 'complete') {
-          // console.log(`Download ${delta.id} has completed.`)
+          console.log(`Download ${delta.id} has completed. Revoking URL`)
           window.URL.revokeObjectURL(screenshotObjectURL)
         }
       })
@@ -472,16 +477,36 @@ export default class BackgroundRecorder {
 
   async captureScreenshot(testCaseId, folderName) {
     const tabIdRec = this.windowSession.currentUsedWindowId[testCaseId]
-    const res = await browser.tabs.captureVisibleTab(tabIdRec) // captureTab not available in chrome
-    let zippedBlobData = dataURLtoFile(res, 'Step.jpeg')
-    let objectURL = window.URL.createObjectURL(zippedBlobData)
-    await browser.downloads.download({
-      filename: `${folderName}/Screenshots/Step${currCount}.jpeg`,
-      url: objectURL,
-      // saveAs: true,
-      conflictAction: 'uniquify',
-    })
-    return objectURL
+    console.log("I/O-Recorder.js: In CaptureScreenshot Method - tabID" + tabIdRec);
+    let res;
+    try {
+      res = await browser.tabs.captureVisibleTab(tabIdRec) // captureTab not available in chrome
+    }
+    catch (error) {
+      console.log(`I/O-Recorder.js: Screen Capture Failed. Cannot take screenshot contact support`);
+      console.error(error);
+      return '';    
+    }
+    console.log("I/O-Recorder.js: Screenshot captured - tabID" + tabIdRec); 
+    let zippedBlobData = dataURLtoFile(res, 'Step.jpeg');
+    let objectURL = window.URL.createObjectURL(zippedBlobData);
+    console.log("I/O-Recorder.js: Download Starting"); 
+    try {
+      await browser.downloads.download({
+        filename: `${folderName}/Screenshots/Step${currCount}.jpeg`,
+        url: objectURL,
+        // saveAs: true,
+        conflictAction: 'uniquify',
+      })
+      console.log(`I/O-Recorder.js: Download Completed, Filename : ${folderName}/Screenshots/Step${currCount}.jpeg`); 
+    } catch (error) {
+      console.log(`I/O-Recorder.js: Download Failed`);    
+      console.error(`Error: ${error}`);
+      console.log(`I/O-Recorder.js: Retrying from <a> tag`);
+      downloadFile(objectURL, `${folderName}/Screenshots/Step${currCount}.jpeg`);
+      console.log(`I/O-Recorder.js: Download completed from <a> tag`);
+    }
+    return objectURL;
   }
 
   async extractPageSource(tabID, folderName) {
@@ -489,21 +514,32 @@ export default class BackgroundRecorder {
 
    // add a listener
    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+     console.log(`I/O-Recorder.js: In Page Source Listener New Grab ? ${isNewGrab}`);
      if (message.isPageSource && message.sourceCode && isNewGrab) {
        isNewGrab = false
-       let zippedBlobData = new File([message.sourceCode], "Step.html", { type: "text/html"});
+       let zippedBlobData = new File([message.sourceCode], 'Step.html', {
+         type: 'text/html',
+       })
+       console.log(`I/O-Recorder.js: Zipped Bob Data`);
+
        let pageSourceObjectURL = window.URL.createObjectURL(zippedBlobData)
        browser.downloads
          .download({
            filename: `${folderName}/PageSources/Step${currCount}.html`,
            url: pageSourceObjectURL,
-           // saveAs: true,
+          //  saveAs: true,
            conflictAction: 'uniquify',
          })
          .then(() => {
+           console.log(`I/O-Recorder.js: In Promise resolved`);
            sendResponse(true)
          })
-         .catch(err => console.log(err))
+         .catch(err => {
+          console.log(`I/O-Recorder.js: In Promise rejected: Error- ${err}`);
+          console.log(`I/O-Recorder.js: In Extract Page source retrying from <a> tag`);
+          downloadFile(pageSourceObjectURL, `${folderName}/PageSources/Step${currCount}.html`);
+          console.log(`I/O-Recorder.js: In Extract Page source retry completed`);
+         })
          .finally(() => {
            window.URL.revokeObjectURL(pageSourceObjectURL)
            console.log('URL revoked')
@@ -513,9 +549,11 @@ export default class BackgroundRecorder {
    })
 
    try {
-     await browser.tabs.executeScript(tabID, { file: 'getPagesSource.js' })
-     return Promise.resolve()
+     console.log(`I/O-Recorder.js: Calling Execute Script From Selenium IDE`);  
+     await browser.tabs.executeScript(tabID, { file: 'getPagesSource.js' });
+     return Promise.resolve();
    } catch (error) {
+     console.log(`I/O-Recorder.js: Calling Execute Script From Selenium IDE Failed`);  
      console.log(error)
    }
  }
