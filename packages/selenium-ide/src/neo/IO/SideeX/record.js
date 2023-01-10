@@ -21,6 +21,7 @@ import WindowSession from '../window-session'
 import { Commands, ArgTypes } from '../../models/Command'
 import Manager from '../../../plugin/manager'
 import { Logger, Channels } from '../../stores/view/Logs'
+import { saveProject } from '../../IO/filesystem'
 
 const logger = new Logger(Channels.SYSTEM)
 
@@ -167,6 +168,16 @@ export default function record(
         newCommand.setTargets(targets)
       }
     }
+  }
+
+  if (command == 'close') {
+    console.log('record: Browser closed by client')
+    console.log('record: Stopping Recording')
+    UiState.stopRecording()
+    console.log('record: Saving Project and Sending side file to API')
+    saveProject(UiState.project)
+    console.log('record: Closing IDE')
+    window.close()
   }
 }
 

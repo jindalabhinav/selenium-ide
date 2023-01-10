@@ -30,9 +30,7 @@
     "<all_urls>"
   ],
   "externally_connectable": {
-    "ids": [
-      "*"
-    ]
+    "ids": ["*"]
   },
   "web_accessible_resources": [
     "icons/icon128.png",
@@ -41,14 +39,13 @@
     "assets/indicator.js",
     "assets/highlight.css",
     "bootstrap.html",
-    "indicator.html"
+    "indicator.html",
+    "index.html"
   ],
   "content_security_policy": "script-src 'self' 'sha256-W7QWmGne6B9hjKtOqoGmUFOPgpFcUo4Nr/yyMqtgXcU=' 'sha256-g0sGx5oQNWQA7+VAX6oocWOlrBzbLK0jggpU/mFFNHE=' 'unsafe-eval'; object-src 'self'",
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
+      "matches": ["<all_urls>"],
       "js": [
         "assets/vendor/global.js",
         "assets/vendor/selenium-browserdetect.js",
@@ -63,8 +60,6 @@
     }
   ],
   "background": {
-    "scripts": [
-      "assets/background.js"
-    ]
+    "scripts": ["assets/background.js"]
   }
 }

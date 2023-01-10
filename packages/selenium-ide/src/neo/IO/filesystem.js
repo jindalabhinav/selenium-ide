@@ -71,8 +71,10 @@ export function loadAsText(blob) {
 }
 
 export function saveProject(_project) {
+  console.log('filesystem: Saving Project To S3')
   const project = _project.toJS()
   downloadProject(project)
+  console.log('filesystem: Project Saved')
   UiState.saved()
 }
 
@@ -93,20 +95,92 @@ function downloadProject(project) {
       project.snapshot = snapshot
       Object.assign(project, Manager.emitDependencies())
     }
-    if (UiState.isControlled) {
-      //If in control mode, send the project in a message and skip downloading
-      sendSaveProjectEvent(project)
-    } else {
-      browser.downloads.download({
-        filename: projectProcessor.sanitizeProjectName(project.name) + '.side',
-        url: createBlob(
-          'application/side',
-          beautify(JSON.stringify(project), { indent_size: 2 })
-        ),
-        saveAs: true,
-        conflictAction: 'overwrite',
-      })
+    // console.log(JSON.stringify(window.location))
+
+    const params = new URLSearchParams(window.location.search)
+    // console.log(JSON.stringify(params))
+    // if (UiState.isControlled) {
+    //   //If in control mode, send the project in a message and skip downloading
+    //   sendSaveProjectEvent(project)
+    // } else {
+    // logic to send to s3
+    // var myHeaders = new Headers()
+    // myHeaders.append('Content-Type', 'application/json')
+    // var raw = JSON.stringify({
+    //   Side: beautify(JSON.stringify(project), { indent_size: 2 }),
+    //   TestCaseName: UiState.project.name,
+    // })
+
+    /* Testing Connection with Orangez
+
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow',
+      }
+
+      fetch(
+        'https://raas-submission-controller.emea.raas.dev.avalara.io/Orangez',
+        requestOptions
+      )
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error))
+      
+      */
+
+    var formdata = new FormData()
+    formdata.append(
+      'DestinationPath',
+      'raas-submission-result-dev-new/TestingIDE'
+    )
+    const blob = new Blob(
+      [beautify(JSON.stringify(project), { indent_size: 2 })],
+      {
+        type: 'application/side',
+      }
+    )
+
+    formdata.append('File', blob, 'test_script.side')
+
+    var requestOptions = {
+      method: 'POST',
+      body: formdata,
+      redirect: 'follow',
     }
+
+    const apiUrl =
+      'https://raas-submission-controller.emea.raas.dev.avalara.io/api/v1/S3/UploadFile'
+
+    console.log(`filesystem: Sending side file to Upload API : ${apiUrl}`)
+
+    // fetch(apiUrl, requestOptions)
+    //   .then(response => response.text())
+    //   .then(result => console.log(result))
+    //   .catch(error => console.log('error', error))
+    // var requestOptions = {
+    //   method: 'POST',
+    //   headers: myHeaders,
+    //   body: raw,
+    //   redirect: 'follow',
+    // }
+
+    // fetch('https://localhost:7129/api/SideFile', requestOptions)
+    //   .then(response => response.text()) // response.json should be there until API is finalized
+    //   .then(() => alert('Side File Uploaded To S3'))
+    //   .catch(error => {
+    //     alert('Side File Upload To S3 Failed')
+    //     console.log('error', error)
+    //   })
+    // browser.downloads.download({
+    //   filename: projectProcessor.sanitizeProjectName(project.name) + '.side',
+    //   url: createBlob(
+    //     'application/side',
+    //     beautify(JSON.stringify(project), { indent_size: 2 })
+    //   ),
+    //   saveAs: true,
+    //   conflictAction: 'overwrite',
+    // })
+    // }
   })
 }
 
